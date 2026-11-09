@@ -18,6 +18,11 @@ async def lifespan(app):
 app = FastAPI(
     title="Клиенты и тарифы",
     version="1.0",
+    description="Управление клиентами и тарифами телекоммуникационной компании.",
+    openapi_tags=[
+        {"name": "Клиенты", "description": "Список клиентов, поиск и управление данными клиентов."},
+        {"name": "Тарифы", "description": "Список тарифов, управление тарифами и статистика подключений."},
+    ],
     docs_url=f"{settings.api_prefix}/docs",
     redoc_url=None,
     openapi_url=f"{settings.api_prefix}/openapi.json",
