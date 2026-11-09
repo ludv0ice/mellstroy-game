@@ -1,6 +1,6 @@
 # REST API клиентов и тарифов
 
-Учебный REST API по заданию: Python 3.12+, FastAPI, SQLite. Три модуля приложения без комментариев: `main.py`, `models.py`, `database.py`. База создаётся автоматически при запуске и сохраняется в `telecom.db`.
+Учебный REST API по заданию: Python 3.12+, FastAPI, SQLite. Код без комментариев, модули распределены по папкам `app/controllers`, `app/core`, `app/db` и `app/models`. База создаётся автоматически при запуске и сохраняется в `telecom.db`.
 
 ## Запуск
 
@@ -8,7 +8,7 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 8000
+uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 В Windows вместо `source .venv/bin/activate` выполнить `.venv\Scripts\activate`.
@@ -17,7 +17,19 @@ Swagger: http://localhost:8000/api/v1/docs
 
 Базовый URL: http://localhost:8000/api/v1
 
-Другой файл базы можно указать через переменную окружения `DATABASE_PATH`.
+Путь к базе задаётся в `app/core/config.py`, в поле `database_path`. Переменные окружения и `import os` не используются.
+
+## Структура
+
+| Папка | Содержимое |
+| --- | --- |
+| `app` | Точка входа `main.py` и подключение маршрутов |
+| `app/controllers` | Маршруты клиентов и тарифов |
+| `app/core` | Настройки и обработка ошибок |
+| `app/db` | Подключение SQLite, создание таблиц и общие запросы |
+| `app/models` | Pydantic-модели запросов и ответов |
+
+Внешние библиотеки импортируются только из `requirements.txt`. Для SQLite, дат, точных денежных значений, аннотаций типов и тестов используются стандартные модули Python; отдельно устанавливать их не нужно.
 
 ## Маршруты
 

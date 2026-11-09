@@ -1,11 +1,12 @@
-import os
 import sqlite3
 from contextlib import contextmanager
+
+from app.core.config import settings
 
 
 @contextmanager
 def connect():
-    db = sqlite3.connect(os.getenv("DATABASE_PATH", "telecom.db"))
+    db = sqlite3.connect(settings.database_path)
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA foreign_keys = ON")
     try:

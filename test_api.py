@@ -1,18 +1,18 @@
-import os
 import tempfile
 import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from main import app
+from app.core.config import settings
+from app.main import app
 
 
 class ApiTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.previous = os.environ.get("DATABASE_PATH")
-        os.environ["DATABASE_PATH"] = str(Path(self.temp.name) / "test.db")
+        self.previous = settings.database_path
+        settings.database_path = str(Path(self.temp.name) / "test.db")
         self.client = TestClient(app)
         self.client.__enter__()
         self.base = "/api/v1"
@@ -25,10 +25,7 @@ class ApiTests(unittest.TestCase):
 
     def tearDown(self):
         self.client.__exit__(None, None, None)
-        if self.previous is None:
-            os.environ.pop("DATABASE_PATH", None)
-        else:
-            os.environ["DATABASE_PATH"] = self.previous
+        settings.database_path = self.previous
         self.temp.cleanup()
 
     def get(self, path, **params):
