@@ -1,0 +1,20 @@
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Покрытие
+.coverage
+coverage_re/
+htmlcov/
+coverage.json
+
+# IDE
+.idea/
+.vscode/

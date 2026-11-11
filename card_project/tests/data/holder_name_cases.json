@@ -1,0 +1,142 @@
+[
+  {
+    "id": "uppercase",
+    "holder_name": "JOHN SMITH",
+    "valid": true
+  },
+  {
+    "id": "lowercase",
+    "holder_name": "john smith",
+    "valid": true
+  },
+  {
+    "id": "mixed-case",
+    "holder_name": "John Smith",
+    "valid": true
+  },
+  {
+    "id": "minimum-2-2",
+    "holder_name": "AB CD",
+    "valid": true
+  },
+  {
+    "id": "length-3-2",
+    "holder_name": "ABC DE",
+    "valid": true
+  },
+  {
+    "id": "length-2-3",
+    "holder_name": "AB CDE",
+    "valid": true
+  },
+  {
+    "id": "extra-spaces",
+    "holder_name": "  JOHN   SMITH  ",
+    "valid": true
+  },
+  {
+    "id": "tab-separator",
+    "holder_name": "JOHN\tSMITH",
+    "valid": true
+  },
+  {
+    "id": "newline-separator",
+    "holder_name": "JOHN\nSMITH",
+    "valid": true
+  },
+  {
+    "id": "empty",
+    "holder_name": "",
+    "valid": false
+  },
+  {
+    "id": "spaces",
+    "holder_name": "   ",
+    "valid": false
+  },
+  {
+    "id": "one-word",
+    "holder_name": "JOHN",
+    "valid": false
+  },
+  {
+    "id": "three-words",
+    "holder_name": "JOHN PAUL SMITH",
+    "valid": false
+  },
+  {
+    "id": "first-length-1",
+    "holder_name": "J SMITH",
+    "valid": false
+  },
+  {
+    "id": "second-length-1",
+    "holder_name": "JOHN S",
+    "valid": false
+  },
+  {
+    "id": "both-length-1",
+    "holder_name": "J S",
+    "valid": false
+  },
+  {
+    "id": "cyrillic",
+    "holder_name": "ИВАН ИВАНОВ",
+    "valid": false
+  },
+  {
+    "id": "accent",
+    "holder_name": "JOSÉ SMITH",
+    "valid": false
+  },
+  {
+    "id": "hyphen",
+    "holder_name": "ANNA-MARIA SMITH",
+    "valid": false
+  },
+  {
+    "id": "apostrophe",
+    "holder_name": "JOHN O'NEIL",
+    "valid": false
+  },
+  {
+    "id": "digit",
+    "holder_name": "JOHN SM1TH",
+    "valid": false
+  },
+  {
+    "id": "underscore",
+    "holder_name": "JOHN SM_ITH",
+    "valid": false
+  },
+  {
+    "id": "null",
+    "holder_name": null,
+    "valid": false
+  },
+  {
+    "id": "integer",
+    "holder_name": 123,
+    "valid": false
+  },
+  {
+    "id": "float",
+    "holder_name": 1.2,
+    "valid": false
+  },
+  {
+    "id": "boolean",
+    "holder_name": true,
+    "valid": false
+  },
+  {
+    "id": "list",
+    "holder_name": [],
+    "valid": false
+  },
+  {
+    "id": "object",
+    "holder_name": {},
+    "valid": false
+  }
+]

@@ -1,0 +1,172 @@
+[
+  {
+    "id": "month-min-short",
+    "expiry_date": "01/00",
+    "valid": true
+  },
+  {
+    "id": "month-max-short",
+    "expiry_date": "12/99",
+    "valid": true
+  },
+  {
+    "id": "month-min-long",
+    "expiry_date": "01/0001",
+    "valid": true
+  },
+  {
+    "id": "month-max-long",
+    "expiry_date": "12/9999",
+    "valid": true
+  },
+  {
+    "id": "past-date-allowed",
+    "expiry_date": "01/2000",
+    "valid": true
+  },
+  {
+    "id": "regular-short",
+    "expiry_date": "06/30",
+    "valid": true
+  },
+  {
+    "id": "regular-long",
+    "expiry_date": "06/2030",
+    "valid": true
+  },
+  {
+    "id": "empty",
+    "expiry_date": "",
+    "valid": false
+  },
+  {
+    "id": "spaces",
+    "expiry_date": " ",
+    "valid": false
+  },
+  {
+    "id": "month-00",
+    "expiry_date": "00/30",
+    "valid": false
+  },
+  {
+    "id": "month-13",
+    "expiry_date": "13/30",
+    "valid": false
+  },
+  {
+    "id": "month-one-digit",
+    "expiry_date": "1/30",
+    "valid": false
+  },
+  {
+    "id": "month-three-digits",
+    "expiry_date": "001/30",
+    "valid": false
+  },
+  {
+    "id": "year-one-digit",
+    "expiry_date": "01/3",
+    "valid": false
+  },
+  {
+    "id": "year-three-digits",
+    "expiry_date": "01/203",
+    "valid": false
+  },
+  {
+    "id": "year-five-digits",
+    "expiry_date": "01/20300",
+    "valid": false
+  },
+  {
+    "id": "year-zero-long",
+    "expiry_date": "01/0000",
+    "valid": false
+  },
+  {
+    "id": "year-missing",
+    "expiry_date": "01/",
+    "valid": false
+  },
+  {
+    "id": "month-missing",
+    "expiry_date": "/30",
+    "valid": false
+  },
+  {
+    "id": "letters-month",
+    "expiry_date": "ab/30",
+    "valid": false
+  },
+  {
+    "id": "letters-year",
+    "expiry_date": "01/ab",
+    "valid": false
+  },
+  {
+    "id": "wrong-separator",
+    "expiry_date": "01-30",
+    "valid": false
+  },
+  {
+    "id": "extra-slash",
+    "expiry_date": "01/20/30",
+    "valid": false
+  },
+  {
+    "id": "leading-space",
+    "expiry_date": " 01/30",
+    "valid": false
+  },
+  {
+    "id": "trailing-space",
+    "expiry_date": "01/30 ",
+    "valid": false
+  },
+  {
+    "id": "newline",
+    "expiry_date": "01/30\n",
+    "valid": false
+  },
+  {
+    "id": "unicode-digits",
+    "expiry_date": "０１/３０",
+    "valid": false
+  },
+  {
+    "id": "arabic-year",
+    "expiry_date": "01/٣٠",
+    "valid": false
+  },
+  {
+    "id": "null",
+    "expiry_date": null,
+    "valid": false
+  },
+  {
+    "id": "integer",
+    "expiry_date": 123,
+    "valid": false
+  },
+  {
+    "id": "float",
+    "expiry_date": 1.2,
+    "valid": false
+  },
+  {
+    "id": "boolean",
+    "expiry_date": true,
+    "valid": false
+  },
+  {
+    "id": "list",
+    "expiry_date": [],
+    "valid": false
+  },
+  {
+    "id": "object",
+    "expiry_date": {},
+    "valid": false
+  }
+]

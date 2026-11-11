@@ -1,0 +1,122 @@
+[
+  {
+    "id": "minimum",
+    "cvv": "000",
+    "valid": true
+  },
+  {
+    "id": "maximum",
+    "cvv": "999",
+    "valid": true
+  },
+  {
+    "id": "regular",
+    "cvv": "123",
+    "valid": true
+  },
+  {
+    "id": "leading-zero",
+    "cvv": "012",
+    "valid": true
+  },
+  {
+    "id": "empty",
+    "cvv": "",
+    "valid": false
+  },
+  {
+    "id": "spaces",
+    "cvv": "   ",
+    "valid": false
+  },
+  {
+    "id": "length-1",
+    "cvv": "1",
+    "valid": false
+  },
+  {
+    "id": "length-2",
+    "cvv": "12",
+    "valid": false
+  },
+  {
+    "id": "length-4",
+    "cvv": "1234",
+    "valid": false
+  },
+  {
+    "id": "letter",
+    "cvv": "12a",
+    "valid": false
+  },
+  {
+    "id": "negative",
+    "cvv": "-12",
+    "valid": false
+  },
+  {
+    "id": "decimal",
+    "cvv": "1.2",
+    "valid": false
+  },
+  {
+    "id": "leading-space",
+    "cvv": " 123",
+    "valid": false
+  },
+  {
+    "id": "trailing-space",
+    "cvv": "123 ",
+    "valid": false
+  },
+  {
+    "id": "inner-space",
+    "cvv": "1 23",
+    "valid": false
+  },
+  {
+    "id": "newline",
+    "cvv": "123\n",
+    "valid": false
+  },
+  {
+    "id": "unicode-digits",
+    "cvv": "１２３",
+    "valid": false
+  },
+  {
+    "id": "arabic-digits",
+    "cvv": "١٢٣",
+    "valid": false
+  },
+  {
+    "id": "null",
+    "cvv": null,
+    "valid": false
+  },
+  {
+    "id": "integer",
+    "cvv": 123,
+    "valid": false
+  },
+  {
+    "id": "float",
+    "cvv": 1.2,
+    "valid": false
+  },
+  {
+    "id": "boolean",
+    "cvv": true,
+    "valid": false
+  },
+  {
+    "id": "list",
+    "cvv": [],
+    "valid": false
+  },
+  {
+    "id": "object",
+    "cvv": {},
+    "valid": false
+  }
+]
