@@ -1,5 +1,3 @@
-"""Загрузка JSON и параметризация тестов без копирования данных в Python."""
-
 import json
 from pathlib import Path
 
@@ -18,12 +16,12 @@ CASE_FILES = {
 
 
 def read_cases(filename):
-    """Читает массив объектов из JSON в UTF-8."""
+
     return json.loads((DATA_DIR / filename).read_text(encoding="utf-8"))
 
 
 def pytest_generate_tests(metafunc):
-    """Создает отдельный pytest-кейс для каждой записи JSON."""
+
     filename = CASE_FILES.get(metafunc.function.__name__)
     if filename is not None:
         rows = read_cases(filename)
@@ -33,12 +31,12 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture(scope="session")
 def json_cases():
-    """Загружает тестовые данные из JSON один раз за сессию."""
+
     return {path.name: read_cases(path.name) for path in sorted(DATA_DIR.glob("*_cases.json"))}
 
 
 @pytest.fixture
 def case(request, json_cases):
-    """Возвращает строку JSON по ссылке, полученной при параметризации."""
+
     filename, index = request.param
     return json_cases[filename][index]

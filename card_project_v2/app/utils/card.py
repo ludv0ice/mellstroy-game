@@ -1,10 +1,8 @@
-"""Вариант проверки карты без регулярных выражений."""
-
 from string import ascii_letters, digits
 
 
 class Card:
-    """Проверяет отдельные поля и все данные карты."""
+
 
     @staticmethod
     def is_valid_card_number(card_number) -> bool:
