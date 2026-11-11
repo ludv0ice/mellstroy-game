@@ -1,12 +1,9 @@
-"""Проверка карты посредством операций со строками."""
-
-
 class Card:
-    """Класс для проверки корректности данных банковской карты."""
+
 
     @staticmethod
     def is_valid_card_number(card_number) -> bool:
-        """Проверяет длину номера и сумму Луна; обычные пробелы удаляются."""
+
         if not isinstance(card_number, str):
             return False
         number = card_number.replace(" ", "")
@@ -14,7 +11,7 @@ class Card:
 
     @staticmethod
     def is_valid_card_holder_name(holder_name) -> bool:
-        """Проверяет два латинских слова длиной больше одного символа."""
+
         if not isinstance(holder_name, str):
             return False
         words = holder_name.split()
@@ -24,7 +21,7 @@ class Card:
 
     @staticmethod
     def is_valid_expiry_date(expiry_date) -> bool:
-        """Проверяет MM/yy или MM/yyyy с существующим месяцем и годом."""
+
         if not isinstance(expiry_date, str):
             return False
         month, separator, year = expiry_date.partition("/")
@@ -37,12 +34,12 @@ class Card:
 
     @staticmethod
     def is_valid_cvv(cvv) -> bool:
-        """Проверяет ровно три цифры ASCII, сохраняя начальные нули."""
+
         return isinstance(cvv, str) and len(cvv) == 3 and cvv.isascii() and cvv.isdecimal()
 
     @staticmethod
     def is_valid_card(card_number, holder_name, expiry_date, cvv) -> bool:
-        """Возвращает True, только если каждое поле корректно."""
+
         return (
             Card.is_valid_card_number(card_number)
             and Card.is_valid_card_holder_name(holder_name)
@@ -52,7 +49,7 @@ class Card:
 
     @staticmethod
     def luhn_check(card_number) -> bool:
-        """Проверяет контрольную сумму Луна для номера произвольной длины от двух."""
+
         if not isinstance(card_number, str):
             return False
         number = card_number.replace(" ", "")
