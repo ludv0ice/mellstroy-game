@@ -73,5 +73,10 @@
     "id": "integer",
     "expiry_date": 123,
     "valid": false
+  },
+  {
+    "id": "trailing-space",
+    "expiry_date": "12/2030 ",
+    "valid": false
   }
 ]

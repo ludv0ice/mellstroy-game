@@ -48,5 +48,10 @@
     "id": "integer",
     "holder_name": 123,
     "valid": false
+  },
+  {
+    "id": "digit-in-name",
+    "holder_name": "JOHN SM1TH",
+    "valid": false
   }
 ]
