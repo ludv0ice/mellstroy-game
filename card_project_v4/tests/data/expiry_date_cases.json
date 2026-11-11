@@ -1,0 +1,77 @@
+[
+  {
+    "id": "month-min-short",
+    "expiry_date": "01/00",
+    "valid": true
+  },
+  {
+    "id": "month-max-short",
+    "expiry_date": "12/99",
+    "valid": true
+  },
+  {
+    "id": "month-min-long",
+    "expiry_date": "01/0001",
+    "valid": true
+  },
+  {
+    "id": "month-max-long",
+    "expiry_date": "12/9999",
+    "valid": true
+  },
+  {
+    "id": "empty",
+    "expiry_date": "",
+    "valid": false
+  },
+  {
+    "id": "month-00",
+    "expiry_date": "00/30",
+    "valid": false
+  },
+  {
+    "id": "month-13",
+    "expiry_date": "13/30",
+    "valid": false
+  },
+  {
+    "id": "month-one-digit",
+    "expiry_date": "1/30",
+    "valid": false
+  },
+  {
+    "id": "year-one-digit",
+    "expiry_date": "01/3",
+    "valid": false
+  },
+  {
+    "id": "year-three-digits",
+    "expiry_date": "01/203",
+    "valid": false
+  },
+  {
+    "id": "year-five-digits",
+    "expiry_date": "01/20300",
+    "valid": false
+  },
+  {
+    "id": "year-zero-long",
+    "expiry_date": "01/0000",
+    "valid": false
+  },
+  {
+    "id": "letters-year",
+    "expiry_date": "01/ab",
+    "valid": false
+  },
+  {
+    "id": "wrong-separator",
+    "expiry_date": "01-30",
+    "valid": false
+  },
+  {
+    "id": "integer",
+    "expiry_date": 123,
+    "valid": false
+  }
+]

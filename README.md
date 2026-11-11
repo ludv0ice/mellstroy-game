@@ -9,6 +9,8 @@
 
 Третий вариант: **[card_project_v3](card_project_v3/README.md)**.
 
+Четвертый вариант: **[card_project_v4](card_project_v4/README.md)**.
+
 ---
 
 # REST API клиентов и тарифов

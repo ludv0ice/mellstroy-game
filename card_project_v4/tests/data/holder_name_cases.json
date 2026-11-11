@@ -1,0 +1,52 @@
+[
+  {
+    "id": "uppercase",
+    "holder_name": "JOHN SMITH",
+    "valid": true
+  },
+  {
+    "id": "minimum-2-2",
+    "holder_name": "AB CD",
+    "valid": true
+  },
+  {
+    "id": "extra-spaces",
+    "holder_name": "  JOHN   SMITH  ",
+    "valid": true
+  },
+  {
+    "id": "empty",
+    "holder_name": "",
+    "valid": false
+  },
+  {
+    "id": "one-word",
+    "holder_name": "JOHN",
+    "valid": false
+  },
+  {
+    "id": "three-words",
+    "holder_name": "JOHN PAUL SMITH",
+    "valid": false
+  },
+  {
+    "id": "first-length-1",
+    "holder_name": "J SMITH",
+    "valid": false
+  },
+  {
+    "id": "second-length-1",
+    "holder_name": "JOHN S",
+    "valid": false
+  },
+  {
+    "id": "cyrillic",
+    "holder_name": "ИВАН ИВАНОВ",
+    "valid": false
+  },
+  {
+    "id": "integer",
+    "holder_name": 123,
+    "valid": false
+  }
+]
