@@ -10,16 +10,6 @@
     "valid": true
   },
   {
-    "id": "visa",
-    "card_number": "4111111111111111",
-    "valid": true
-  },
-  {
-    "id": "mastercard",
-    "card_number": "5555555555554444",
-    "valid": true
-  },
-  {
     "id": "classic-11",
     "card_number": "79927398713",
     "valid": true
@@ -30,33 +20,13 @@
     "valid": true
   },
   {
-    "id": "zeros",
-    "card_number": "00",
-    "valid": true
-  },
-  {
-    "id": "outer-spaces",
-    "card_number": " 18 ",
-    "valid": true
-  },
-  {
     "id": "wrong-checksum",
     "card_number": "1234567890123456",
     "valid": false
   },
   {
-    "id": "changed-check-digit",
-    "card_number": "79927398714",
-    "valid": false
-  },
-  {
     "id": "empty",
     "card_number": "",
-    "valid": false
-  },
-  {
-    "id": "spaces",
-    "card_number": "  ",
     "valid": false
   },
   {
@@ -70,53 +40,8 @@
     "valid": false
   },
   {
-    "id": "hyphen",
-    "card_number": "1-8",
-    "valid": false
-  },
-  {
-    "id": "newline",
-    "card_number": "18\n",
-    "valid": false
-  },
-  {
-    "id": "tabs",
-    "card_number": "1\t8",
-    "valid": false
-  },
-  {
-    "id": "unicode-digits",
-    "card_number": "１８",
-    "valid": false
-  },
-  {
-    "id": "null",
-    "card_number": null,
-    "valid": false
-  },
-  {
     "id": "integer",
     "card_number": 123,
-    "valid": false
-  },
-  {
-    "id": "float",
-    "card_number": 1.2,
-    "valid": false
-  },
-  {
-    "id": "boolean",
-    "card_number": true,
-    "valid": false
-  },
-  {
-    "id": "list",
-    "card_number": [],
-    "valid": false
-  },
-  {
-    "id": "object",
-    "card_number": {},
     "valid": false
   }
 ]

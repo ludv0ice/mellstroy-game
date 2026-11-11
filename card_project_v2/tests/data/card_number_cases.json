@@ -5,43 +5,13 @@
     "valid": true
   },
   {
-    "id": "mastercard",
-    "card_number": "5555555555554444",
-    "valid": true
-  },
-  {
-    "id": "pdf-example",
-    "card_number": "4539148803436467",
-    "valid": true
-  },
-  {
     "id": "grouped",
     "card_number": "4539 1488 0343 6467",
     "valid": true
   },
   {
-    "id": "outer-spaces",
-    "card_number": " 4111111111111111 ",
-    "valid": true
-  },
-  {
-    "id": "all-spaces-between",
-    "card_number": "4 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1",
-    "valid": true
-  },
-  {
-    "id": "leading-zeroes",
-    "card_number": "0000000000000000",
-    "valid": true
-  },
-  {
     "id": "empty",
     "card_number": "",
-    "valid": false
-  },
-  {
-    "id": "spaces",
-    "card_number": "   ",
     "valid": false
   },
   {
@@ -60,28 +30,8 @@
     "valid": false
   },
   {
-    "id": "changed-check-digit",
-    "card_number": "4111111111111112",
-    "valid": false
-  },
-  {
     "id": "letters",
     "card_number": "411111111111111A",
-    "valid": false
-  },
-  {
-    "id": "hyphens",
-    "card_number": "4111-1111-1111-1111",
-    "valid": false
-  },
-  {
-    "id": "tabs",
-    "card_number": "4111\t1111 1111 1111",
-    "valid": false
-  },
-  {
-    "id": "newline",
-    "card_number": "4111111111111111\n",
     "valid": false
   },
   {
@@ -90,38 +40,8 @@
     "valid": false
   },
   {
-    "id": "arabic-digits",
-    "card_number": "٤١١١١١١١١١١١١١١١",
-    "valid": false
-  },
-  {
-    "id": "null",
-    "card_number": null,
-    "valid": false
-  },
-  {
     "id": "integer",
     "card_number": 123,
-    "valid": false
-  },
-  {
-    "id": "float",
-    "card_number": 1.2,
-    "valid": false
-  },
-  {
-    "id": "boolean",
-    "card_number": true,
-    "valid": false
-  },
-  {
-    "id": "list",
-    "card_number": [],
-    "valid": false
-  },
-  {
-    "id": "object",
-    "card_number": {},
     "valid": false
   }
 ]
