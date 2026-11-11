@@ -1,0 +1,118 @@
+[
+  {
+    "id": "all-valid",
+    "card_number": "4111111111111111",
+    "holder_name": "JOHN SMITH",
+    "expiry_date": "12/2030",
+    "cvv": "123",
+    "valid": true
+  },
+  {
+    "id": "card_number-empty",
+    "card_number": "",
+    "holder_name": "JOHN SMITH",
+    "expiry_date": "12/2030",
+    "cvv": "123",
+    "valid": false,
+    "invalid_field": "card_number"
+  },
+  {
+    "id": "holder_name-empty",
+    "card_number": "4111111111111111",
+    "holder_name": "",
+    "expiry_date": "12/2030",
+    "cvv": "123",
+    "valid": false,
+    "invalid_field": "holder_name"
+  },
+  {
+    "id": "expiry_date-empty",
+    "card_number": "4111111111111111",
+    "holder_name": "JOHN SMITH",
+    "expiry_date": "",
+    "cvv": "123",
+    "valid": false,
+    "invalid_field": "expiry_date"
+  },
+  {
+    "id": "cvv-empty",
+    "card_number": "4111111111111111",
+    "holder_name": "JOHN SMITH",
+    "expiry_date": "12/2030",
+    "cvv": "",
+    "valid": false,
+    "invalid_field": "cvv"
+  },
+  {
+    "id": "pairwise-valid-01",
+    "card_number": "4111111111111111",
+    "holder_name": "AB CD",
+    "expiry_date": "01/30",
+    "cvv": "000",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-02",
+    "card_number": "4111111111111111",
+    "holder_name": "AB CD",
+    "expiry_date": "12/2030",
+    "cvv": "999",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-03",
+    "card_number": "4111111111111111",
+    "holder_name": "john smith",
+    "expiry_date": "01/30",
+    "cvv": "999",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-04",
+    "card_number": "4111111111111111",
+    "holder_name": "john smith",
+    "expiry_date": "12/2030",
+    "cvv": "000",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-05",
+    "card_number": "5555 5555 5555 4444",
+    "holder_name": "AB CD",
+    "expiry_date": "01/30",
+    "cvv": "999",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-06",
+    "card_number": "5555 5555 5555 4444",
+    "holder_name": "AB CD",
+    "expiry_date": "12/2030",
+    "cvv": "000",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-07",
+    "card_number": "5555 5555 5555 4444",
+    "holder_name": "john smith",
+    "expiry_date": "01/30",
+    "cvv": "000",
+    "valid": true,
+    "technique": "pairwise-valid"
+  },
+  {
+    "id": "pairwise-valid-08",
+    "card_number": "5555 5555 5555 4444",
+    "holder_name": "john smith",
+    "expiry_date": "12/2030",
+    "cvv": "999",
+    "valid": true,
+    "technique": "pairwise-valid"
+  }
+]

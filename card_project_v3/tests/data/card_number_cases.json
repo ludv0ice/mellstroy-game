@@ -1,0 +1,60 @@
+[
+  {
+    "id": "visa",
+    "card_number": "4111111111111111",
+    "valid": true,
+    "luhn_valid": true
+  },
+  {
+    "id": "grouped",
+    "card_number": "4539 1488 0343 6467",
+    "valid": true,
+    "luhn_valid": true
+  },
+  {
+    "id": "empty",
+    "card_number": "",
+    "valid": false,
+    "luhn_valid": false
+  },
+  {
+    "id": "length-15",
+    "card_number": "411111111111111",
+    "valid": false
+  },
+  {
+    "id": "length-17",
+    "card_number": "41111111111111111",
+    "valid": false
+  },
+  {
+    "id": "luhn-fails",
+    "card_number": "1234567890123456",
+    "valid": false,
+    "luhn_valid": false
+  },
+  {
+    "id": "letters",
+    "card_number": "411111111111111A",
+    "valid": false,
+    "luhn_valid": false
+  },
+  {
+    "id": "unicode-digits",
+    "card_number": "４１１１１１１１１１１１１１１１",
+    "valid": false,
+    "luhn_valid": false
+  },
+  {
+    "id": "integer",
+    "card_number": 123,
+    "valid": false,
+    "luhn_valid": false
+  },
+  {
+    "id": "classic-luhn",
+    "card_number": "79927398713",
+    "valid": false,
+    "luhn_valid": true
+  }
+]

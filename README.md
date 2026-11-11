@@ -7,6 +7,8 @@
 
 Второй вариант без регулярных выражений: **[card_project_v2](card_project_v2/README.md)**.
 
+Третий вариант: **[card_project_v3](card_project_v3/README.md)**.
+
 ---
 
 # REST API клиентов и тарифов
