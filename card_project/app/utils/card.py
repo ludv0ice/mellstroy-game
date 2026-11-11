@@ -1,14 +1,12 @@
-"""Валидация полей карты по правилам учебного задания."""
-
 import re
 
 
 class Card:
-    """Класс для проверки корректности данных банковской карты."""
+
 
     @staticmethod
     def is_valid_card_number(card_number) -> bool:
-        """Проверяет строку из 16 цифр без пробелов и контрольную сумму Луна."""
+
         if not isinstance(card_number, str):
             return False
         number = card_number.replace(" ", "")
@@ -16,7 +14,7 @@ class Card:
 
     @staticmethod
     def is_valid_card_holder_name(holder_name) -> bool:
-        """Проверяет два слова из латинских букв, каждое длиной больше 1."""
+
         if not isinstance(holder_name, str):
             return False
         words = holder_name.split()
@@ -26,7 +24,7 @@ class Card:
 
     @staticmethod
     def is_valid_expiry_date(expiry_date) -> bool:
-        """Проверяет MM/yy или MM/yyyy, месяц 01-12 и существующий год."""
+
         if not isinstance(expiry_date, str):
             return False
         match = re.fullmatch(r"(0[1-9]|1[0-2])/([0-9]{2}|[0-9]{4})", expiry_date)
@@ -37,12 +35,12 @@ class Card:
 
     @staticmethod
     def is_valid_cvv(cvv) -> bool:
-        """Проверяет непустую строку ровно из трех цифр."""
+
         return isinstance(cvv, str) and re.fullmatch(r"[0-9]{3}", cvv) is not None
 
     @staticmethod
     def is_valid_card(card_number, holder_name, expiry_date, cvv) -> bool:
-        """Возвращает True, только если все четыре поля валидны."""
+
         return (
             Card.is_valid_card_number(card_number)
             and Card.is_valid_card_holder_name(holder_name)
@@ -52,7 +50,7 @@ class Card:
 
     @staticmethod
     def luhn_check(card_number) -> bool:
-        """Проверяет сумму Луна для строки минимум из двух цифр; удаляет пробелы."""
+
         if not isinstance(card_number, str):
             return False
         number = card_number.replace(" ", "")

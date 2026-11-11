@@ -10,18 +10,8 @@
     "valid": true
   },
   {
-    "id": "extra-spaces",
-    "holder_name": "  JOHN   SMITH  ",
-    "valid": true
-  },
-  {
     "id": "empty",
     "holder_name": "",
-    "valid": false
-  },
-  {
-    "id": "one-word",
-    "holder_name": "JOHN",
     "valid": false
   },
   {

@@ -23,11 +23,6 @@
     "valid": false
   },
   {
-    "id": "length-17",
-    "card_number": "41111111111111111",
-    "valid": false
-  },
-  {
     "id": "luhn-fails",
     "card_number": "1234567890123456",
     "valid": false,

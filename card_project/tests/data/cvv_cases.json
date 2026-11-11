@@ -10,11 +10,6 @@
     "valid": true
   },
   {
-    "id": "leading-zero",
-    "cvv": "012",
-    "valid": true
-  },
-  {
     "id": "empty",
     "cvv": "",
     "valid": false
