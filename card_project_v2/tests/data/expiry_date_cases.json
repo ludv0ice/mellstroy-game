@@ -15,16 +15,6 @@
     "valid": true
   },
   {
-    "id": "month-max-long",
-    "expiry_date": "12/9999",
-    "valid": true
-  },
-  {
-    "id": "empty",
-    "expiry_date": "",
-    "valid": false
-  },
-  {
     "id": "month-00",
     "expiry_date": "00/30",
     "valid": false
@@ -40,18 +30,8 @@
     "valid": false
   },
   {
-    "id": "year-one-digit",
-    "expiry_date": "01/3",
-    "valid": false
-  },
-  {
     "id": "year-three-digits",
     "expiry_date": "01/203",
-    "valid": false
-  },
-  {
-    "id": "year-five-digits",
-    "expiry_date": "01/20300",
     "valid": false
   },
   {

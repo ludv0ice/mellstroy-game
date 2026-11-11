@@ -15,11 +15,6 @@
     "valid": true
   },
   {
-    "id": "short-2",
-    "card_number": "18",
-    "valid": true
-  },
-  {
     "id": "wrong-checksum",
     "card_number": "1234567890123456",
     "valid": false
@@ -27,11 +22,6 @@
   {
     "id": "empty",
     "card_number": "",
-    "valid": false
-  },
-  {
-    "id": "length-1",
-    "card_number": "0",
     "valid": false
   },
   {

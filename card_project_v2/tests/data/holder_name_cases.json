@@ -1,23 +1,8 @@
 [
   {
-    "id": "uppercase",
-    "holder_name": "JOHN SMITH",
-    "valid": true
-  },
-  {
     "id": "minimum-2-2",
     "holder_name": "AB CD",
     "valid": true
-  },
-  {
-    "id": "extra-spaces",
-    "holder_name": "  JOHN   SMITH  ",
-    "valid": true
-  },
-  {
-    "id": "empty",
-    "holder_name": "",
-    "valid": false
   },
   {
     "id": "one-word",

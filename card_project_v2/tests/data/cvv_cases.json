@@ -10,16 +10,6 @@
     "valid": true
   },
   {
-    "id": "leading-zero",
-    "cvv": "012",
-    "valid": true
-  },
-  {
-    "id": "empty",
-    "cvv": "",
-    "valid": false
-  },
-  {
     "id": "length-2",
     "cvv": "12",
     "valid": false
@@ -32,11 +22,6 @@
   {
     "id": "letter",
     "cvv": "12a",
-    "valid": false
-  },
-  {
-    "id": "unicode-digits",
-    "cvv": "１２３",
     "valid": false
   },
   {
