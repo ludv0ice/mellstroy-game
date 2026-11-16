@@ -1,84 +1,72 @@
+from datetime import date
+from decimal import Decimal
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Response
-from fastapi.exceptions import RequestValidationError
-from pydantic import ValidationError
+from fastapi import APIRouter, Depends, Query, Response
 
-from app.db.database import connect
-from app.db.queries import get_client, joined_clients, require_tarif, update
-from app.models.schemas import Amount, Birthday, ClientCreate, ClientUpdate, ClientWithTarif, Message
+from app.core.security import admin, staff
+from app.db.database import get_db
+from app.models.schemas import ClientCreate, ClientOut, ClientPage, ClientPatch, Phone, PositiveId
+from app.services.telecom import clients, ensure_tarif, get_client, insert, update_client
 
-
-router = APIRouter(prefix="/clients", tags=["Клиенты"])
+router = APIRouter(prefix='/clients', tags=['Клиенты'], dependencies=[Depends(staff)])
 
 
-@router.get("/search/phone", response_model=list[ClientCreate], summary="Найти клиентов по коду страны")
-def search_phone(phone: Annotated[str, Query(pattern=r"^\+?[0-9]{1,15}$")]):
-    with connect() as db:
-        return [dict(row) for row in db.execute("SELECT * FROM client WHERE number_phone LIKE ? ORDER BY number_phone", (phone + "%",))]
+@router.get('', response_model=ClientPage)
+def list_clients(limit: Annotated[int, Query(ge=1, le=100)] = 20, offset: Annotated[int, Query(ge=0)] = 0, tarif_id: PositiveId | None = None, db=Depends(get_db)):
+    where = 'WHERE id_tarif = ?' if tarif_id is not None else ''
+    params = (tarif_id,) if tarif_id is not None else ()
+    total = db.execute(f'SELECT COUNT(*) FROM client {where}', params).fetchone()[0]
+    items = clients(db, where, (*params, limit, offset), 'ORDER BY number_phone LIMIT ? OFFSET ?')
+    return {'total': total, 'limit': limit, 'offset': offset, 'items': items}
 
 
-@router.get("/sorted-by-birthday", response_model=list[Birthday], summary="Список клиентов по дате рождения")
-def sorted_clients():
-    with connect() as db:
-        return [{"full_name": " ".join(filter(None, (row["lastname"], row["firstname"], row["patronymic_name"]))), "date_birthday": row["date_birthday"]} for row in db.execute("SELECT * FROM client ORDER BY date_birthday, number_phone")]
+@router.post('', status_code=201, response_model=ClientOut)
+def create_client(body: ClientCreate, db=Depends(get_db)):
+    ensure_tarif(db, body.id_tarif)
+    insert(db, 'client', body.model_dump(mode='json'))
+    return get_client(db, body.number_phone)
 
 
-@router.get("/search/passport-year", response_model=list[ClientCreate], summary="Найти клиентов по году выдачи паспорта")
-def search_passport(year: Annotated[int, Query(ge=1, le=9999)]):
-    with connect() as db:
-        return [dict(row) for row in db.execute("SELECT * FROM client WHERE date_issue > ? ORDER BY number_phone", (f"{year:04d}-12-31",))]
+@router.get('/search/phone', response_model=list[ClientOut])
+def search_phone(phone: Annotated[str, Query(pattern=r'^(\+7|8)[0-9]{0,10}$')], db=Depends(get_db)):
+    return clients(db, 'WHERE number_phone LIKE ?', (phone + '%',))
 
 
-@router.get("/search/tarif-cost", response_model=list[ClientWithTarif], summary="Найти клиентов по стоимости тарифа")
-def search_tarif_cost(minSalary: Annotated[Amount, Query()]):
-    with connect() as db:
-        return joined_clients(db, minSalary)
+@router.get('/sorted-by-birthday')
+def sorted_birthday(db=Depends(get_db)):
+    rows = db.execute('SELECT lastname, firstname, patronymic_name, date_birthday FROM client ORDER BY date_birthday, number_phone')
+    return [{'full_name': ' '.join(filter(None, [r['lastname'], r['firstname'], r['patronymic_name']])), 'date_birthday': r['date_birthday']} for r in rows]
 
 
-@router.get("/with-tarif", response_model=list[ClientWithTarif], summary="Список клиентов с тарифами")
-def clients_with_tarif():
-    with connect() as db:
-        return joined_clients(db)
+@router.get('/search/passport-year', response_model=list[ClientOut])
+def passport_year(year: Annotated[int, Query(ge=1900, le=date.today().year)], db=Depends(get_db)):
+    return clients(db, 'WHERE date_issue > ?', (f'{year:04d}-12-31',))
 
 
-@router.post("", response_model=ClientCreate, status_code=201, summary="Добавить клиента")
-def create_client(body: ClientCreate):
-    data = body.model_dump(mode="json")
-    with connect() as db:
-        require_tarif(db, body.id_tarif)
-        db.execute("""INSERT INTO client (number_phone, id_tarif, lastname, firstname, patronymic_name,
-            date_birthday, pasport_serial, pasport_number, date_issue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", tuple(data.values()))
-        return get_client(db, body.number_phone)
+@router.get('/search/tarif-cost', response_model=list[ClientOut])
+def tarif_cost(minSalary: Annotated[Decimal, Query(ge=0)], db=Depends(get_db)):
+    return clients(db, 'WHERE id_tarif IN (SELECT id_tarif FROM tarif WHERE salary > ?)', (str(minSalary * 100),))
 
 
-@router.patch("/tarif", response_model=Message, summary="Изменить тариф клиента")
-def assign_tarif(phone: str, id_tarif: Annotated[int, Query(gt=0)]):
-    with connect() as db:
-        get_client(db, phone)
-        require_tarif(db, id_tarif)
-        db.execute("UPDATE client SET id_tarif = ? WHERE number_phone = ?", (id_tarif, phone))
-    return {"message": "Тариф клиента обновлён"}
+@router.patch('/tarif', response_model=ClientOut)
+def change_tarif(phone: Phone, id_tarif: PositiveId, db=Depends(get_db)):
+    return update_client(db, phone, ClientPatch(id_tarif=id_tarif))
 
 
-@router.put("/{phone}", response_model=ClientCreate, summary="Изменить данные клиента")
-def update_client(phone: str, body: ClientUpdate):
-    data = body.model_dump(mode="json", exclude_unset=True)
-    with connect() as db:
-        current = get_client(db, phone)
-        try:
-            ClientCreate.model_validate({**current, **data})
-        except ValidationError as error:
-            raise RequestValidationError(error.errors()) from error
-        if "id_tarif" in data:
-            require_tarif(db, data["id_tarif"])
-        update(db, "client", "number_phone", phone, data)
-        return get_client(db, data.get("number_phone", phone))
+@router.get('/{phone}', response_model=ClientOut)
+def client_card(phone: Phone, db=Depends(get_db)):
+    return get_client(db, phone)
 
 
-@router.delete("/{phone}", status_code=204, summary="Удалить клиента")
-def delete_client(phone: str):
-    with connect() as db:
-        get_client(db, phone)
-        db.execute("DELETE FROM client WHERE number_phone = ?", (phone,))
+@router.patch('/{phone}', response_model=ClientOut)
+def patch_client(phone: Phone, body: ClientPatch, db=Depends(get_db)):
+    return update_client(db, phone, body)
+
+
+@router.delete('/{phone}', status_code=204, dependencies=[Depends(admin)])
+def delete_client(phone: Phone, db=Depends(get_db)):
+    get_client(db, phone)
+    with db:
+        db.execute('DELETE FROM client WHERE number_phone = ?', (phone,))
     return Response(status_code=204)
