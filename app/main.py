@@ -1,9 +1,9 @@
 import secrets
-import sqlite3
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 
 from app.controllers import auth, clients, tarifs
 from app.core import config
@@ -22,14 +22,14 @@ def create_app(database_path=None, secret=None):
     app.state.secret = secret or config.JWT_SECRET or secrets.token_urlsafe(48)
     app.state.dummy_password = hash_password(secrets.token_urlsafe(32))
 
-    @app.exception_handler(sqlite3.IntegrityError)
+    @app.exception_handler(IntegrityError)
     async def integrity_error(request: Request, error):
         message = str(error)
-        if 'client.number_phone' in message:
+        if 'client.number_phone' in message or 'client_pkey' in message:
             detail = 'Клиент с таким номером телефона уже существует'
-        elif 'tarif.tarif_name' in message:
+        elif 'tarif.tarif_name' in message or 'tarif_tarif_name_key' in message:
             detail = 'Тариф с таким названием уже существует'
-        elif 'FOREIGN KEY' in message:
+        elif 'FOREIGN KEY' in message or 'ForeignKeyViolation' in message:
             detail = 'Операция нарушает связь клиента с тарифом'
         else:
             detail = 'Данные конфликтуют с существующей записью'

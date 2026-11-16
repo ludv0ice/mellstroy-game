@@ -1,53 +1,53 @@
-import sqlite3
+from functools import lru_cache
 from pathlib import Path
 
 from fastapi import Request
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import make_url
+from sqlalchemy.orm import Session
+from sqlalchemy.pool import StaticPool
+
+from app.models.entities import Base
 
 
-def connect(path):
-    db = sqlite3.connect(path, timeout=10, check_same_thread=False)
-    db.row_factory = sqlite3.Row
-    db.execute('PRAGMA foreign_keys = ON')
-    return db
+def database_url(value):
+    if '://' in value:
+        return value.replace('postgresql://', 'postgresql+psycopg://', 1)
+    return 'sqlite:///' + value
 
 
-def initialize(path):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    with connect(path) as db:
-        db.executescript('''
-            CREATE TABLE IF NOT EXISTS tarif (
-                id_tarif INTEGER PRIMARY KEY AUTOINCREMENT,
-                tarif_name TEXT NOT NULL UNIQUE,
-                internet INTEGER NOT NULL CHECK(internet BETWEEN 0 AND 100000),
-                count_minutes INTEGER NOT NULL CHECK(count_minutes BETWEEN 0 AND 10000),
-                count_sms INTEGER NOT NULL CHECK(count_sms BETWEEN 0 AND 10000),
-                salary INTEGER NOT NULL CHECK(salary BETWEEN 0 AND 100000000)
-            );
-            CREATE TABLE IF NOT EXISTS client (
-                number_phone TEXT PRIMARY KEY,
-                id_tarif INTEGER REFERENCES tarif(id_tarif) ON DELETE RESTRICT,
-                lastname TEXT NOT NULL,
-                firstname TEXT NOT NULL,
-                patronymic_name TEXT NOT NULL,
-                date_birthday TEXT NOT NULL,
-                pasport_serial TEXT NOT NULL,
-                pasport_number TEXT NOT NULL,
-                date_issue TEXT NOT NULL
-            );
-            CREATE INDEX IF NOT EXISTS client_tarif_idx ON client(id_tarif);
-            CREATE TABLE IF NOT EXISTS employee (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL UNIQUE,
-                password_hash TEXT NOT NULL,
-                role TEXT NOT NULL CHECK(role IN ('manager', 'admin')),
-                full_name TEXT NOT NULL
-            );
-        ''')
+@lru_cache(maxsize=16)
+def get_engine(value):
+    url = make_url(database_url(value))
+    options = {'pool_pre_ping': True}
+    if url.get_backend_name() == 'sqlite':
+        options['connect_args'] = {'check_same_thread': False, 'timeout': 10}
+        if url.database in (None, '', ':memory:'):
+            options['poolclass'] = StaticPool
+        else:
+            Path(url.database).parent.mkdir(parents=True, exist_ok=True)
+    engine = create_engine(url, **options)
+    if url.get_backend_name() == 'sqlite':
+        @event.listens_for(engine, 'connect')
+        def enable_foreign_keys(connection, record):
+            cursor = connection.cursor()
+            cursor.execute('PRAGMA foreign_keys = ON')
+            cursor.close()
+    return engine
+
+
+def connect(value):
+    return Session(get_engine(value), expire_on_commit=False)
+
+
+def initialize(value):
+    Base.metadata.create_all(get_engine(value))
 
 
 def get_db(request: Request):
-    db = connect(request.app.state.database_path)
-    try:
-        yield db
-    finally:
-        db.close()
+    with connect(request.app.state.database_path) as session:
+        try:
+            yield session
+        except Exception:
+            session.rollback()
+            raise

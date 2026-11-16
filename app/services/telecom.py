@@ -1,39 +1,45 @@
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
+from sqlalchemy import select
 
+from app.models.entities import Client, Tarif
 from app.models.schemas import ClientCreate
 
 
-def tarif_out(row):
-    result = dict(row)
-    result['salary'] = result['salary'] / 100
-    return result
+def fields(entity):
+    return {column.name: getattr(entity, column.name) for column in entity.__table__.columns}
+
+
+def tarif_out(tarif):
+    return fields(tarif) | {'salary': tarif.salary / 100}
+
+
+def client_out(client):
+    return fields(client) | {'tarif': tarif_out(client.tarif) if client.tarif else None}
 
 
 def get_tarif(db, tarif_id):
-    row = db.execute('SELECT * FROM tarif WHERE id_tarif = ?', (tarif_id,)).fetchone()
-    if row is None:
+    tarif = db.get(Tarif, tarif_id)
+    if tarif is None:
         raise HTTPException(404, 'Тариф не найден')
-    return tarif_out(row)
+    return tarif
 
 
 def get_client(db, phone):
-    row = db.execute('SELECT * FROM client WHERE number_phone = ?', (phone,)).fetchone()
-    if row is None:
+    client = db.get(Client, phone)
+    if client is None:
         raise HTTPException(404, 'Клиент с таким номером телефона не найден')
-    result = dict(row)
-    result['tarif'] = get_tarif(db, result['id_tarif']) if result['id_tarif'] is not None else None
-    return result
+    return client
 
 
-def clients(db, where='', params=(), suffix='ORDER BY number_phone'):
-    rows = db.execute(f'SELECT number_phone FROM client {where} {suffix}', params).fetchall()
-    return [get_client(db, row['number_phone']) for row in rows]
+def clients(db, *conditions):
+    query = select(Client).where(*conditions).order_by(Client.number_phone)
+    return [client_out(client) for client in db.scalars(query)]
 
 
 def ensure_tarif(db, tarif_id):
-    if tarif_id is not None and db.execute('SELECT 1 FROM tarif WHERE id_tarif = ?', (tarif_id,)).fetchone() is None:
+    if tarif_id is not None and db.get(Tarif, tarif_id) is None:
         raise HTTPException(422, [{'loc': ['body', 'id_tarif'], 'msg': 'Тариф должен существовать', 'type': 'value_error.tarif_not_found'}])
 
 
@@ -44,30 +50,24 @@ def values(model):
     return result
 
 
-def insert(db, table, data):
-    columns = ', '.join(data)
-    marks = ', '.join('?' for _ in data)
-    with db:
-        cursor = db.execute(f'INSERT INTO {table} ({columns}) VALUES ({marks})', tuple(data.values()))
-    return cursor.lastrowid
-
-
-def update(db, table, key, identifier, data):
-    if not data:
-        raise HTTPException(422, 'Передайте хотя бы одно поле для обновления')
-    assignments = ', '.join(f'{name} = ?' for name in data)
-    with db:
-        db.execute(f'UPDATE {table} SET {assignments} WHERE {key} = ?', (*data.values(), identifier))
+def save(db, entity, data=None):
+    if data is not None:
+        if not data:
+            raise HTTPException(422, 'Передайте хотя бы одно поле для обновления')
+        for key, value in data.items():
+            setattr(entity, key, value)
+    db.add(entity)
+    db.commit()
+    db.refresh(entity)
+    return entity
 
 
 def update_client(db, phone, patch):
-    existing = get_client(db, phone)
-    existing.pop('tarif')
+    client = get_client(db, phone)
     data = patch.model_dump(mode='json', exclude_unset=True)
     try:
-        ClientCreate.model_validate(existing | data)
+        ClientCreate.model_validate(fields(client) | data)
     except ValidationError as error:
         raise RequestValidationError([{**item, 'loc': ('body', *item['loc'])} for item in error.errors()])
     ensure_tarif(db, data.get('id_tarif'))
-    update(db, 'client', 'number_phone', phone, data)
-    return get_client(db, data.get('number_phone', phone))
+    return client_out(save(db, client, data))

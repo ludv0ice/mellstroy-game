@@ -1,10 +1,11 @@
 import argparse
 import getpass
-import sqlite3
+from sqlalchemy.exc import IntegrityError
 
 from app.core import config
 from app.core.security import hash_password
 from app.db.database import connect, initialize
+from app.models.entities import Employee
 
 
 def main():
@@ -20,9 +21,9 @@ def main():
         parser.error('Пароли не совпадают')
     initialize(config.DATABASE_PATH)
     try:
-        with connect(config.DATABASE_PATH) as db:
-            db.execute('INSERT INTO employee (username, password_hash, role, full_name) VALUES (?, ?, ?, ?)', (args.username, hash_password(password), args.role, args.full_name))
-    except sqlite3.IntegrityError:
+        with connect(config.DATABASE_PATH) as db, db.begin():
+            db.add(Employee(username=args.username, password_hash=hash_password(password), role=args.role, full_name=args.full_name))
+    except IntegrityError:
         parser.error('Такой сотрудник уже существует')
     print('Сотрудник создан')
 

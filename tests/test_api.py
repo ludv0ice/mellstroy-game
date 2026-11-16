@@ -1,13 +1,19 @@
 import tempfile
+import hashlib
+import sqlite3
+import time
 import unittest
 from datetime import date
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.core.security import hash_password
-from app.db.database import connect
+from app.core.security import hash_password, verify_password, session_hash
+from app.db.database import connect, get_engine
 from app.main import create_app
+from app.models.entities import AuthSession, Employee
+from sqlalchemy import select, update, func
+from sqlalchemy.orm import Session
 
 
 class ApiTests(unittest.TestCase):
@@ -20,14 +26,15 @@ class ApiTests(unittest.TestCase):
         self.path = str(Path(self.temp.name) / 'test.db')
         self.client = TestClient(create_app(self.path, 'test-secret'))
         self.client.__enter__()
-        with connect(self.path) as db:
+        with connect(self.path) as db, db.begin():
             for role in ('admin', 'manager'):
-                db.execute('INSERT INTO employee (username, password_hash, role, full_name) VALUES (?, ?, ?, ?)', (role, self.password_hash, role, 'Тестовый Сотрудник'))
+                db.add(Employee(username=role, password_hash=self.password_hash, role=role, full_name='Тестовый Сотрудник'))
         self.tokens = {}
         for role in ('admin', 'manager'):
             response = self.client.post('/api/v1/auth/login', json={'username': role, 'password': 'test-password'})
             self.assertEqual(response.status_code, 200, response.text)
             self.tokens[role] = {'Authorization': 'Bearer ' + response.json()['access_token']}
+        self.client.cookies.clear()
         self.tarif = {'tarif_name': 'Основной', 'internet': 50, 'count_minutes': 500, 'count_sms': 100, 'salary': 600.25}
         self.person = {'number_phone': '+79001234567', 'lastname': 'Иванов', 'firstname': 'Иван', 'patronymic_name': 'Иванович', 'date_birthday': '1990-05-15', 'pasport_serial': '0012', 'pasport_number': '003456', 'date_issue': '2015-08-20'}
 
@@ -143,6 +150,95 @@ class ApiTests(unittest.TestCase):
         schema = self.call('GET', '/openapi.json', role=None)
         self.assertIn('patch', schema['paths']['/api/v1/tarifs/{id_tarif}'])
         self.assertIn('HTTPBearer', schema['components']['securitySchemes'])
+
+
+    def cookie_login(self, username='admin'):
+        return self.call('POST', '/auth/login', role=None, json={'username': username, 'password': 'test-password'})
+
+    def test_argon2_passwords(self):
+        self.assertTrue(self.password_hash.startswith('$argon2id$'))
+        self.assertTrue(verify_password('test-password', self.password_hash))
+        self.assertFalse(verify_password('wrong-password', self.password_hash))
+        self.assertFalse(verify_password('test-password', 'invalid-hash'))
+
+    def test_cookie_login_and_logout(self):
+        self.cookie_login()
+        token = self.client.cookies.get('telecom_session')
+        self.assertIsNotNone(token)
+        self.assertEqual(self.call('GET', '/auth/me', role=None)['role'], 'admin')
+        response = self.client.post('/api/v1/tarifs', json=self.tarif, headers={'Origin': 'http://testserver'})
+        self.assertEqual(response.status_code, 201, response.text)
+        with connect(self.path) as db:
+            row = db.get(AuthSession, session_hash(token))
+            self.assertIsNotNone(row)
+            self.assertNotEqual(row.token_hash, token)
+        response = self.client.post('/api/v1/auth/logout', headers={'Origin': 'http://testserver'})
+        self.assertEqual(response.status_code, 204)
+        self.assertIsNone(self.client.cookies.get('telecom_session'))
+        self.client.cookies.set('telecom_session', token, path='/api/v1')
+        self.call('GET', '/auth/me', 401, None)
+
+    def test_cookie_csrf_protection(self):
+        self.cookie_login()
+        for headers in ({}, {'Origin': 'https://evil.example'}, {'Origin': 'http://testserver', 'Sec-Fetch-Site': 'cross-site'}):
+            response = self.client.post('/api/v1/tarifs', json=self.tarif, headers=headers)
+            self.assertEqual(response.status_code, 403, response.text)
+        self.call('GET', '/auth/me', role=None)
+        self.assertEqual(self.client.post('/api/v1/auth/login', json={'username': 'admin', 'password': 'test-password'}, headers={'Origin': 'https://evil.example'}).status_code, 403)
+
+    def test_cookie_expiry_rotation_and_persistence(self):
+        self.cookie_login()
+        old = self.client.cookies.get('telecom_session')
+        self.cookie_login()
+        new = self.client.cookies.get('telecom_session')
+        self.assertNotEqual(old, new)
+        with connect(self.path) as db:
+            self.assertIsNone(db.get(AuthSession, session_hash(old)))
+        with TestClient(create_app(self.path, 'different-secret')) as other:
+            other.cookies.set('telecom_session', new, path='/api/v1')
+            self.assertEqual(other.get('/api/v1/auth/me').status_code, 200)
+        with connect(self.path) as db, db.begin():
+            db.execute(update(AuthSession).values(expires_at=int(time.time()) - 1))
+        self.call('GET', '/auth/me', 401, None)
+        self.client.cookies.clear()
+        self.cookie_login()
+        with connect(self.path) as db:
+            self.assertEqual(db.scalar(select(func.count()).select_from(AuthSession)), 1)
+
+    def test_cookie_flags_and_bearer_priority(self):
+        response = self.client.post('/api/v1/auth/login', json={'username': 'admin', 'password': 'test-password'})
+        cookie = response.headers['set-cookie'].lower()
+        for flag in ('httponly', 'samesite=strict', 'path=/api/v1', 'max-age=3600'):
+            self.assertIn(flag, cookie)
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertEqual(self.call('GET', '/auth/me', role='manager')['role'], 'manager')
+        self.assertEqual(self.client.get('/api/v1/auth/me', headers={'Authorization': 'Bearer bad'}).status_code, 401)
+
+    def test_session_rollback_and_postgres_driver(self):
+        with connect(self.path) as db:
+            self.assertIsInstance(db, Session)
+            db.add(Employee(username='uncommitted', password_hash=self.password_hash, role='manager', full_name='Тест'))
+            db.flush()
+        with connect(self.path) as db:
+            self.assertIsNone(db.scalar(select(Employee).where(Employee.username == 'uncommitted')))
+        engine = get_engine('postgresql+psycopg://user:password@localhost/telecom')
+        self.assertEqual(engine.dialect.driver, 'psycopg')
+
+    def test_legacy_database_and_password_upgrade(self):
+        legacy_path = str(Path(self.temp.name) / 'legacy.db')
+        salt = '0123456789abcdef0123456789abcdef'
+        digest = hashlib.pbkdf2_hmac('sha256', b'legacy-password', salt.encode(), 600000).hex()
+        encoded = salt + '$' + digest
+        with sqlite3.connect(legacy_path) as db:
+            db.execute('CREATE TABLE employee (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, role TEXT NOT NULL, full_name TEXT NOT NULL)')
+            db.execute('INSERT INTO employee (username, password_hash, role, full_name) VALUES (?, ?, ?, ?)', ('legacy', encoded, 'admin', 'Старый пользователь'))
+        with TestClient(create_app(legacy_path, 'test-secret')) as client:
+            r = client.post('/api/v1/auth/login', json={'username': 'legacy', 'password': 'legacy-password'})
+            self.assertEqual(r.status_code, 200, r.text)
+            self.assertEqual(client.get('/api/v1/auth/me').status_code, 200)
+        with connect(legacy_path) as db:
+            employee = db.scalar(select(Employee).where(Employee.username == 'legacy'))
+            self.assertTrue(employee.password_hash.startswith('$argon2id$'))
 
 
 if __name__ == '__main__':
