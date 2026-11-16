@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
@@ -40,9 +38,9 @@ def ensure_tarif(db, tarif_id):
 
 
 def values(model):
-    result = model.model_dump(mode='json', exclude_unset=True)
+    result = model.model_dump(exclude_unset=True)
     if 'salary' in result:
-        result['salary'] = int(Decimal(str(result['salary'])) * 100)
+        result['salary'] = int(result['salary'] * 100)
     return result
 
 

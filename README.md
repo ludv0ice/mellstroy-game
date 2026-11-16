@@ -1,6 +1,6 @@
 # Управление клиентами и тарифами — API 2.0
 
-Реализация приложенного задания на Python 3.12+, FastAPI, Pydantic 2 и SQLite. Все исходники без комментариев. Полный код по файлам в отдельных блоках: [CODE.md](CODE.md).
+Реализация приложенного задания на Python 3.12+, FastAPI, Pydantic 2 и SQLite. Все исходники без комментариев.
 
 ## Структура
 
@@ -11,6 +11,7 @@
 | `app/controllers/auth.py` | Вход и профиль |
 | `app/controllers/clients.py` | Маршруты клиентов |
 | `app/controllers/tarifs.py` | Маршруты тарифов |
+| `app/core/config.py` | Путь к базе и ключ подписи токенов |
 | `app/core/security.py` | JWT HS256, PBKDF2 SHA256, проверка ролей |
 | `app/db/database.py` | Схема SQLite, соединения, внешние ключи |
 | `app/models/schemas.py` | Модели запросов, ответов и правила валидации |
@@ -23,7 +24,6 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-export JWT_SECRET="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
 python -m app.manage admin --role admin --full-name "Администратор"
 python -m app.manage manager_ivan --role manager --full-name "Иванов Иван Иванович"
 uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -35,7 +35,6 @@ Windows PowerShell:
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-$env:JWT_SECRET = python -c "import secrets; print(secrets.token_urlsafe(48))"
 python -m app.manage admin --role admin --full-name "Администратор"
 python -m app.manage manager_ivan --role manager --full-name "Иванов Иван Иванович"
 uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -43,7 +42,15 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 Пароли вводятся скрыто, дважды, минимум 10 символов. Готовых учетных записей и паролей в репозитории нет. Сотрудников создает оператор с доступом к серверу: публичная регистрация отсутствует. PDF упоминает управление сотрудниками, но не задает для него HTTP-маршрутов; реализованы только документированные HTTP-операции.
 
-База автоматически создается в `telecom.db`. Переменная `DATABASE_PATH` меняет путь. Для сохранения токенов между перезапусками задайте постоянный `JWT_SECRET` и используйте одинаковое значение во всех процессах. Без него ключ случайный на каждый процесс, поэтому после перезапуска нужен повторный вход. JWT действует один час; роль при каждом запросе читается из базы.
+Настройки находятся в `app/core/config.py`: `DATABASE_PATH` задает путь к базе, `JWT_SECRET` — ключ подписи токенов. Переменные окружения не используются. По умолчанию база создается в `telecom.db`, а `JWT_SECRET = None` включает случайный ключ на каждый процесс. После перезапуска приложения потребуется повторный вход.
+
+Чтобы токены сохранялись между перезапусками, сгенерируйте ключ и запишите результат строкой в `JWT_SECRET` в своем локальном `app/core/config.py`. Один и тот же ключ должен использоваться всеми процессами приложения. Секретный ключ не публикуйте в репозитории.
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+JWT действует один час; роль при каждом запросе читается из базы.
 
 Базовый адрес: http://localhost:8000/api/v1
 

@@ -1,8 +1,8 @@
 import argparse
 import getpass
-import os
 import sqlite3
 
+from app.core import config
 from app.core.security import hash_password
 from app.db.database import connect, initialize
 
@@ -18,10 +18,9 @@ def main():
         parser.error('Пароль должен содержать не менее 10 символов')
     if password != getpass.getpass('Повторите пароль: '):
         parser.error('Пароли не совпадают')
-    path = os.getenv('DATABASE_PATH', 'telecom.db')
-    initialize(path)
+    initialize(config.DATABASE_PATH)
     try:
-        with connect(path) as db:
+        with connect(config.DATABASE_PATH) as db:
             db.execute('INSERT INTO employee (username, password_hash, role, full_name) VALUES (?, ?, ?, ?)', (args.username, hash_password(password), args.role, args.full_name))
     except sqlite3.IntegrityError:
         parser.error('Такой сотрудник уже существует')
